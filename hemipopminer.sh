@@ -48,9 +48,20 @@ install_go() {
     echo "Go 安装完成，版本: $(go version)"
 }
 
+# 功能：检查并安装 pm2
+install_pm2() {
+    if ! command -v pm2 &> /dev/null; then
+        echo "pm2 未安装。正在安装 pm2..."
+        npm install -g pm2
+    else
+        echo "pm2 已安装。"
+    fi
+}
+
 # 检查并自动安装 git, make 和 Go
 install_dependencies
 check_go_version
+install_pm2
 
 # 功能1：下载、解压缩并运行帮助命令
 download_and_setup() {
@@ -87,7 +98,9 @@ setup_environment() {
 
 # 功能3：使用 pm2 启动 popmd
 start_popmd() {
-    pm2 start ./popmd
+    cd "$HOME/heminetwork"
+    pm2 start ./popmd --name popmd
+    pm2 save
 }
 
 # 功能4：备份 popm-address.json
