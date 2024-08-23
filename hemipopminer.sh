@@ -130,9 +130,10 @@ backup_address() {
     cat ~/popm-address.json
 }
 
-# 功能5：安装 pm2
-install_pm2_function() {
-    install_pm2
+# 功能5：查看日志
+view_logs() {
+    cd "$HOME/heminetwork"
+    pm2 logs popmd
 }
 
 # 主菜单
@@ -145,7 +146,7 @@ main_menu() {
         echo "2. 输入 private_key 和 sats/vB / Input private_key and sats/vB"
         echo "3. 启动 popmd / Start popmd"
         echo "4. 备份地址信息 / Backup address information"
-        echo "5. 安装 pm2 / Install pm2"
+        echo "5. 查看日志 / View logs"
         echo "6. 退出 / Exit"
 
         read -p "请输入选项 (1-6): / Enter your choice (1-6): " choice
@@ -164,7 +165,7 @@ main_menu() {
                 backup_address
                 ;;
             5)
-                install_pm2_function
+                view_logs
                 ;;
             6)
                 echo "退出脚本。/ Exiting the script."
