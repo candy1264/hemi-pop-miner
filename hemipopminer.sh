@@ -56,11 +56,17 @@ check_go_version
 download_and_setup() {
     wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.2/heminetwork_v0.3.2_linux_amd64.tar.gz
 
-    # 解压并将文件夹名称更改为 heminetwork
-    tar --transform 's/^heminetwork_v0.3.2_linux_amd64/heminetwork/' -xvf heminetwork_v0.3.2_linux_amd64.tar.gz
+    # 创建目标文件夹 (如果不存在)
+    TARGET_DIR="$HOME/heminetwork"
+    mkdir -p "$TARGET_DIR"
 
-    cd "$HOME/heminetwork"
+    # 解压文件到目标文件夹
+    tar -xvf heminetwork_v0.3.2_linux_amd64.tar.gz -C "$TARGET_DIR"
+
+    # 切换到目标文件夹
+    cd "$TARGET_DIR"
     ./popmd --help
+    ./keygen -secp256k1 -json -net="testnet" > ~/popm-address.json
 }
 
 # 功能2：设置环境变量
