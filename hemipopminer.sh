@@ -61,7 +61,6 @@ download_and_setup() {
 
     cd "$HOME/heminetwork"
     ./popmd --help
-    ./keygen -secp256k1 -json -net="testnet" > ~/popm-address.json
 }
 
 # 功能2：设置环境变量
@@ -85,16 +84,23 @@ start_popmd() {
     pm2 start ./popmd
 }
 
+# 功能4：备份 popm-address.json
+backup_address() {
+    echo "请保存到本地："
+    cat ~/popm-address.json
+}
+
 # 主菜单
 main_menu() {
     while true; do
         echo "请选择一个选项:"
         echo "1. 下载并设置 Heminetwork"
-        echo "2. 设置钱包以及sats/vB"
+        echo "2. 设置环境变量"
         echo "3. 启动 popmd"
-        echo "4. 退出"
+        echo "4. 备份地址信息"
+        echo "5. 退出"
 
-        read -p "请输入选项 (1-4): " choice
+        read -p "请输入选项 (1-5): " choice
 
         case $choice in
             1)
@@ -107,6 +113,9 @@ main_menu() {
                 start_popmd
                 ;;
             4)
+                backup_address
+                ;;
+            5)
                 echo "退出脚本。"
                 exit 0
                 ;;
