@@ -138,6 +138,8 @@ install_pm2_function() {
 # 主菜单
 main_menu() {
     while true; do
+        clear
+        echo "创建自 https://x.com/ccaannddyy11 来自社区 https://t.me/niuwuriji / Created by https://x.com/ccaannddyy11 from the community https://t.me/niuwuriji"
         echo "请选择一个选项: / Please select an option:"
         echo "1. 下载并设置 Heminetwork / Download and setup Heminetwork"
         echo "2. 输入 private_key 和 sats/vB / Input private_key and sats/vB"
