@@ -48,8 +48,30 @@ install_go() {
     echo "Go 安装完成，版本: $(go version) / Go installation completed, version: $(go version)"
 }
 
-# 功能：检查并安装 pm2
+# 功能：检查并安装 Node.js 和 npm
+install_node() {
+    echo "检测到未安装 npm。正在安装 Node.js 和 npm... / npm is not installed. Installing Node.js and npm..."
+
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
+        sudo apt-get install -y nodejs
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        brew install node
+    else
+        echo "不支持的操作系统。请手动安装 Node.js 和 npm。/ Unsupported OS. Please manually install Node.js and npm."
+        exit 1
+    fi
+
+    echo "Node.js 和 npm 安装完成。/ Node.js and npm installation completed."
+}
+
+# 功能：安装 pm2
 install_pm2() {
+    if ! command -v npm &> /dev/null; then
+        echo "npm 未安装。/ npm is not installed."
+        install_node
+    fi
+
     if ! command -v pm2 &> /dev/null; then
         echo "pm2 未安装。正在安装 pm2... / pm2 is not installed. Installing pm2..."
         npm install -g pm2
@@ -108,6 +130,11 @@ backup_address() {
     cat ~/popm-address.json
 }
 
+# 功能5：安装 pm2
+install_pm2_function() {
+    install_pm2
+}
+
 # 主菜单
 main_menu() {
     while true; do
@@ -116,9 +143,10 @@ main_menu() {
         echo "2. 输入 private_key 和 sats/vB / Input private_key and sats/vB"
         echo "3. 启动 popmd / Start popmd"
         echo "4. 备份地址信息 / Backup address information"
-        echo "5. 退出 / Exit"
+        echo "5. 安装 pm2 / Install pm2"
+        echo "6. 退出 / Exit"
 
-        read -p "请输入选项 (1-5): / Enter your choice (1-5): " choice
+        read -p "请输入选项 (1-6): / Enter your choice (1-6): " choice
 
         case $choice in
             1)
@@ -134,6 +162,9 @@ main_menu() {
                 backup_address
                 ;;
             5)
+                install_pm2_function
+                ;;
+            6)
                 echo "退出脚本。/ Exiting the script."
                 exit 0
                 ;;
