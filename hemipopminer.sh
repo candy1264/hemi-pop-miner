@@ -119,7 +119,7 @@ setup_environment() {
 # 功能3：使用 pm2 启动 popmd
 start_popmd() {
     cd "$HOME/heminetwork"
-    pm2 start ./popmd --name popmd -- --port 5296
+    pm2 start ./popmd --name popmd
     pm2 save
     echo "popmd 已通过 pm2 启动。/ popmd has been started with pm2."
 }
