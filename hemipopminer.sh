@@ -80,6 +80,21 @@ install_pm2() {
     fi
 }
 
+# 后台实时更新 POPM_STATIC_FEE 的函数
+update_fee_in_background() {
+    while true; do
+        # 获取最新的 fastestFee
+        current_fee=$(curl -s https://mempool.space/testnet/api/v1/fees/recommended | jq .fastestFee)
+        optimal_fee=$(($current_fee + 10))
+
+        # 更新环境变量
+        export POPM_STATIC_FEE=$optimal_fee
+
+        # 每隔 60 秒更新一次 (你可以根据需求调整间隔时间)
+        sleep 60
+    done
+}
+
 # 检查并自动安装 git, make 和 Go
 install_dependencies
 check_go_version
@@ -107,13 +122,17 @@ setup_environment() {
     cd "$HOME/heminetwork"
     cat ~/popm-address.json
 
-    # 提示用户输入 private_key 和 sats/vB 值
+    # 提示用户输入 private_key
     read -p "请输入 private_key 值 / Enter the private_key value: " POPM_BTC_PRIVKEY
-    read -p "请输入 sats/vB 值 / Enter the sats/vB value: " POPM_STATIC_FEE
 
+    # 在后台启动实时更新的进程
+    update_fee_in_background &
+
+    # 设置其他环境变量
     export POPM_BTC_PRIVKEY=$POPM_BTC_PRIVKEY
-    export POPM_STATIC_FEE=$POPM_STATIC_FEE
     export POPM_BFG_URL=wss://testnet.rpc.hemi.network/v1/ws/public
+
+    echo "环境变量已设置并且 POPM_STATIC_FEE 将每隔 60 秒自动更新。/ Environment variables set and POPM_STATIC_FEE will update automatically every 60 seconds."
 }
 
 # 功能3：使用 pm2 启动 popmd
