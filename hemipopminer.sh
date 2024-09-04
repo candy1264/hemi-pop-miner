@@ -144,7 +144,7 @@ view_logs() {
 # 功能6：更新到 v0.3.8 版本
 update_to_v038() {
     # 检查并停止 popmd 进程
-    pm2 delete popmd &> /dev/null
+     pm2 delete popmd || true
     # 删除旧的 heminetwork 文件夹
     rm -rf "$HOME/heminetwork"
 
