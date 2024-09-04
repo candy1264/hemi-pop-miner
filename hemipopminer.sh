@@ -87,14 +87,14 @@ install_pm2
 
 # 功能1：下载、解压缩并运行帮助命令
 download_and_setup() {
-    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.3.8_linux_amd64.tar.gz
+    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.2/heminetwork_v0.3.2_linux_amd64.tar.gz
 
     # 创建目标文件夹 (如果不存在)
     TARGET_DIR="$HOME/heminetwork"
     mkdir -p "$TARGET_DIR"
 
     # 解压文件到目标文件夹
-    tar -xvf heminetwork_v0.3.8_linux_amd64.tar.gz -C "$TARGET_DIR"
+    tar -xvf heminetwork_v0.3.2_linux_amd64.tar.gz -C "$TARGET_DIR" --strip-components=1
 
     # 切换到目标文件夹
     cd "$TARGET_DIR"
@@ -105,11 +105,11 @@ download_and_setup() {
 # 功能2：设置环境变量
 setup_environment() {
     cd "$HOME/heminetwork"
-    
+    cat ~/popm-address.json
+
     # 自动抓取 private_key
-    if [ -f "$HOME/popm-address.json" ]; then
-        POPM_BTC_PRIVKEY=$(grep -Po '"private_key": *\K"[^"]*"' "$HOME/popm-address.json" | tr -d '"')
-    fi
+    POPM_BTC_PRIVKEY=$(jq -r '.private_key' < ~/popm-address.json)
+    echo "自动抓取的 private_key: $POPM_BTC_PRIVKEY / Automatically extracted private_key: $POPM_BTC_PRIVKEY"
 
     # 提示用户输入 sats/vB 值
     read -p "请输入 sats/vB 值 / Enter the sats/vB value: " POPM_STATIC_FEE
@@ -139,18 +139,26 @@ view_logs() {
     pm2 logs popmd
 }
 
-# 功能6：更新到 v0.3.8 版本
-update_to_v038() {
-    echo "更新前停止 pm2 程序... / Stopping pm2 processes before update..."
+# 功能6：更新到 v0.3.8
+update_heminetwork() {
+    echo "停止 popmd... / Stopping popmd..."
     pm2 stop popmd
+    pm2 delete popmd
 
-    echo "删除旧的 heminetwork 文件夹... / Removing old heminetwork folder..."
+    echo "删除原有的 heminetwork 文件夹... / Deleting the existing heminetwork folder..."
     rm -rf "$HOME/heminetwork"
 
-    download_and_setup
+    echo "下载并解压新版本... / Downloading and extracting the new version..."
+    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.3.8_linux_amd64.tar.gz
 
-    # 更新完成后执行 setup_environment 和 start_popmd
+    # 解压到目标文件夹并移除子目录结构
+    mkdir -p "$HOME/heminetwork"
+    tar -xvf heminetwork_v0.3.8_linux_amd64.tar.gz -C "$HOME/heminetwork" --strip-components=1
+
+    echo "执行环境设置... / Executing environment setup..."
     setup_environment
+
+    echo "重新启动 popmd... / Restarting popmd..."
     start_popmd
 }
 
@@ -188,7 +196,7 @@ main_menu() {
                 view_logs
                 ;;
             6)
-                update_to_v038
+                update_heminetwork
                 ;;
             7)
                 echo "退出脚本。/ Exiting the script."
@@ -202,4 +210,3 @@ main_menu() {
 }
 
 # 启动主菜单
-main_menu
