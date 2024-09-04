@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# 发生错误时退出脚本
+set -e
+
+# 捕获错误并提示
+trap 'echo "发生错误，脚本已退出。/ An error occurred, the script has exited.";' ERR
+
 # 功能：自动安装缺少的依赖项 (git 和 make)
 install_dependencies() {
     for cmd in git make; do
@@ -80,14 +86,9 @@ install_pm2() {
     fi
 }
 
-# 检查并自动安装 git, make 和 Go
-install_dependencies
-check_go_version
-install_pm2
-
 # 功能1：下载、解压缩并运行帮助命令
 download_and_setup() {
-    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.3.8_linux_amd64.tar.gz
+    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.3.8_linux_amd64.tar.gz -O heminetwork_v0.3.8_linux_amd64.tar.gz
 
     # 创建目标文件夹 (如果不存在)
     TARGET_DIR="$HOME/heminetwork"
@@ -96,8 +97,9 @@ download_and_setup() {
     # 解压文件到目标文件夹
     tar -xvf heminetwork_v0.3.8_linux_amd64.tar.gz -C "$TARGET_DIR"
 
-    # 移动解压缩后的文件到heminetwork目录
+    # 移动文件到 heminetwork 目录
     mv "$TARGET_DIR/heminetwork_v0.3.8_linux_amd64/"* "$TARGET_DIR/"
+    rmdir "$TARGET_DIR/heminetwork_v0.3.8_linux_amd64"
 
     # 切换到目标文件夹
     cd "$TARGET_DIR"
@@ -108,11 +110,13 @@ download_and_setup() {
 # 功能2：设置环境变量
 setup_environment() {
     cd "$HOME/heminetwork"
-    export POPM_BTC_PRIVKEY=$(cat ~/popm-address.json | grep -oP '(?<="private_key": ")[^"]*')
+    cat ~/popm-address.json
 
-    # 提示用户输入 sats/vB 值
-    read -p "请输入 sats/vB 值 / Enter the sats/vB value: " POPM_STATIC_FEE
+    # 自动抓取 private_key
+    POPM_BTC_PRIVKEY=$(jq -r '.private_key' ~/popm-address.json)
+    read -p "检查 https://mempool.space/zh/testnet 上的 sats/vB 值并输入 / Check the sats/vB value on https://mempool.space/zh/testnet and input: " POPM_STATIC_FEE
 
+    export POPM_BTC_PRIVKEY=$POPM_BTC_PRIVKEY
     export POPM_STATIC_FEE=$POPM_STATIC_FEE
     export POPM_BFG_URL=wss://testnet.rpc.hemi.network/v1/ws/public
 }
@@ -137,21 +141,22 @@ view_logs() {
     pm2 logs popmd
 }
 
-# 功能6：更新到 v0.3.8
+# 功能6：更新到 v0.3.8 版本
 update_to_v038() {
-    pm2 stop popmd
+    echo "停止 pm2 管理的 popmd / Stopping popmd managed by pm2..."
+    pm2 stop popmd || { echo "无法停止 popmd，请检查 pm2 状态。/ Failed to stop popmd, please check pm2 status."; exit 1; }
+    
+    echo "删除旧的 heminetwork 文件夹 / Removing old heminetwork folder..."
+    rm -rf "$HOME/heminetwork" || { echo "无法删除旧文件夹，请检查权限。/ Failed to remove old directory, please check permissions."; exit 1; }
 
-    # 删除旧的 heminetwork 文件夹
-    rm -rf "$HOME/heminetwork"
-
-    # 重新下载并设置
+    echo "下载并安装 v0.3.8 / Downloading and installing v0.3.8..."
     download_and_setup
-
-    # 执行 setup_environment 并重新启动 popmd
+    
+    echo "设置环境变量 / Setting up environment variables..."
     setup_environment
-    start_popmd
 
-    echo "更新完成，已启动最新版本的 popmd。/ Update completed, and the latest version of popmd has been started."
+    echo "重新启动 popmd / Restarting popmd..."
+    start_popmd
 }
 
 # 主菜单
@@ -202,4 +207,5 @@ main_menu() {
 }
 
 # 启动主菜单
+echo "准备启动主菜单... / Preparing to launch the main menu..."
 main_menu
