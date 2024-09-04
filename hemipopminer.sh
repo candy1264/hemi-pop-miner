@@ -105,11 +105,14 @@ download_and_setup() {
 # 功能2：设置环境变量
 setup_environment() {
     cd "$HOME/heminetwork"
-    POPM_BTC_PRIVKEY=$(jq -r '.private_key' < ~/popm-address.json)
-    POPM_STATIC_FEE=$(jq -r '.fee' < ~/popm-address.json)
+    
+    # 自动抓取 private_key
+    if [ -f "$HOME/popm-address.json" ]; then
+        POPM_BTC_PRIVKEY=$(grep -Po '"private_key": *\K"[^"]*"' "$HOME/popm-address.json" | tr -d '"')
+    fi
 
-    echo "自动从 popm-address.json 文件中获取 private_key: $POPM_BTC_PRIVKEY"
-    echo "自动从 popm-address.json 文件中获取 sats/vB 值: $POPM_STATIC_FEE"
+    # 提示用户输入 sats/vB 值
+    read -p "请输入 sats/vB 值 / Enter the sats/vB value: " POPM_STATIC_FEE
 
     export POPM_BTC_PRIVKEY=$POPM_BTC_PRIVKEY
     export POPM_STATIC_FEE=$POPM_STATIC_FEE
@@ -136,25 +139,19 @@ view_logs() {
     pm2 logs popmd
 }
 
-# 功能6：更新 Heminetwork 到 v0.3.8
-update_heminetwork() {
-    echo "正在停止 pm2 运行的程序... / Stopping pm2 running processes..."
+# 功能6：更新到 v0.3.8 版本
+update_to_v038() {
+    echo "更新前停止 pm2 程序... / Stopping pm2 processes before update..."
     pm2 stop popmd
-    pm2 delete popmd
 
-    echo "删除原有的 heminetwork 文件夹... / Removing the existing heminetwork folder..."
+    echo "删除旧的 heminetwork 文件夹... / Removing old heminetwork folder..."
     rm -rf "$HOME/heminetwork"
 
-    echo "下载并设置新版 Heminetwork v0.3.8... / Downloading and setting up the new Heminetwork v0.3.8..."
     download_and_setup
 
-    echo "设置环境变量... / Setting up environment variables..."
+    # 更新完成后执行 setup_environment 和 start_popmd
     setup_environment
-
-    echo "启动 popmd... / Starting popmd..."
     start_popmd
-
-    echo "更新到 v0.3.8 完成。/ Update to v0.3.8 completed."
 }
 
 # 主菜单
@@ -169,7 +166,7 @@ main_menu() {
         echo "3. 启动 popmd / Start popmd"
         echo "4. 备份地址信息 / Backup address information"
         echo "5. 查看日志 / View logs"
-        echo "6. 更新到 Heminetwork v0.3.8 / Update to Heminetwork v0.3.8"
+        echo "6. 更新到 v0.3.8 / Update to v0.3.8"
         echo "7. 退出 / Exit"
 
         read -p "请输入选项 (1-7): / Enter your choice (1-7): " choice
@@ -191,7 +188,7 @@ main_menu() {
                 view_logs
                 ;;
             6)
-                update_heminetwork
+                update_to_v038
                 ;;
             7)
                 echo "退出脚本。/ Exiting the script."
