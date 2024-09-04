@@ -87,14 +87,17 @@ install_pm2
 
 # 功能1：下载、解压缩并运行帮助命令
 download_and_setup() {
-    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.2/heminetwork_v0.3.2_linux_amd64.tar.gz
+    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.3.8_linux_amd64.tar.gz
 
     # 创建目标文件夹 (如果不存在)
     TARGET_DIR="$HOME/heminetwork"
     mkdir -p "$TARGET_DIR"
 
     # 解压文件到目标文件夹
-    tar -xvf heminetwork_v0.3.2_linux_amd64.tar.gz -C "$TARGET_DIR" --strip-components=1
+    tar -xvf heminetwork_v0.3.8_linux_amd64.tar.gz -C "$TARGET_DIR"
+
+    # 移动解压缩后的文件到heminetwork目录
+    mv "$TARGET_DIR/heminetwork_v0.3.8_linux_amd64/"* "$TARGET_DIR/"
 
     # 切换到目标文件夹
     cd "$TARGET_DIR"
@@ -105,16 +108,11 @@ download_and_setup() {
 # 功能2：设置环境变量
 setup_environment() {
     cd "$HOME/heminetwork"
-    cat ~/popm-address.json
-
-    # 自动抓取 private_key
-    POPM_BTC_PRIVKEY=$(jq -r '.private_key' < ~/popm-address.json)
-    echo "自动抓取的 private_key: $POPM_BTC_PRIVKEY / Automatically extracted private_key: $POPM_BTC_PRIVKEY"
+    export POPM_BTC_PRIVKEY=$(cat ~/popm-address.json | grep -oP '(?<="private_key": ")[^"]*')
 
     # 提示用户输入 sats/vB 值
     read -p "请输入 sats/vB 值 / Enter the sats/vB value: " POPM_STATIC_FEE
 
-    export POPM_BTC_PRIVKEY=$POPM_BTC_PRIVKEY
     export POPM_STATIC_FEE=$POPM_STATIC_FEE
     export POPM_BFG_URL=wss://testnet.rpc.hemi.network/v1/ws/public
 }
@@ -140,37 +138,21 @@ view_logs() {
 }
 
 # 功能6：更新到 v0.3.8
-update_heminetwork() {
-    echo "停止 popmd... / Stopping popmd..."
+update_to_v038() {
     pm2 stop popmd
-    pm2 delete popmd
 
-    echo "删除原有的 heminetwork 文件夹... / Deleting the existing heminetwork folder..."
+    # 删除旧的 heminetwork 文件夹
     rm -rf "$HOME/heminetwork"
 
-    echo "下载并解压新版本... / Downloading and extracting the new version..."
-    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.3.8_linux_amd64.tar.gz
+    # 重新下载并设置
+    download_and_setup
 
-    # 创建目标文件夹
-    mkdir -p "$HOME/heminetwork"
-
-    # 解压到一个临时目录
-    TEMP_DIR=$(mktemp -d)
-    tar -xvf heminetwork_v0.3.8_linux_amd64.tar.gz -C "$TEMP_DIR"
-
-    # 移动解压后的文件到目标目录
-    mv "$TEMP_DIR/heminetwork_v0.3.8_linux_amd64/"* "$HOME/heminetwork/"
-
-    # 删除临时目录
-    rm -rf "$TEMP_DIR"
-
-    echo "执行环境设置... / Executing environment setup..."
+    # 执行 setup_environment 并重新启动 popmd
     setup_environment
-
-    echo "重新启动 popmd... / Restarting popmd..."
     start_popmd
-}
 
+    echo "更新完成，已启动最新版本的 popmd。/ Update completed, and the latest version of popmd has been started."
+}
 
 # 主菜单
 main_menu() {
@@ -206,7 +188,7 @@ main_menu() {
                 view_logs
                 ;;
             6)
-                update_heminetwork
+                update_to_v038
                 ;;
             7)
                 echo "退出脚本。/ Exiting the script."
@@ -220,3 +202,4 @@ main_menu() {
 }
 
 # 启动主菜单
+main_menu
