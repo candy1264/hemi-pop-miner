@@ -87,14 +87,14 @@ install_pm2
 
 # 功能1：下载、解压缩并运行帮助命令
 download_and_setup() {
-    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.2/heminetwork_v0.3.2_linux_amd64.tar.gz
+    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.3.8_linux_amd64.tar.gz
 
     # 创建目标文件夹 (如果不存在)
     TARGET_DIR="$HOME/heminetwork"
     mkdir -p "$TARGET_DIR"
 
     # 解压文件到目标文件夹
-    tar -xvf heminetwork_v0.3.2_linux_amd64.tar.gz -C "$TARGET_DIR"
+    tar -xvf heminetwork_v0.3.8_linux_amd64.tar.gz -C "$TARGET_DIR"
 
     # 切换到目标文件夹
     cd "$TARGET_DIR"
@@ -105,11 +105,11 @@ download_and_setup() {
 # 功能2：设置环境变量
 setup_environment() {
     cd "$HOME/heminetwork"
-    cat ~/popm-address.json
+    POPM_BTC_PRIVKEY=$(jq -r '.private_key' < ~/popm-address.json)
+    POPM_STATIC_FEE=$(jq -r '.fee' < ~/popm-address.json)
 
-    # 提示用户输入 private_key 和 sats/vB 值
-    read -p "请输入 private_key 值 / Enter the private_key value: " POPM_BTC_PRIVKEY
-    read -p "请输入 sats/vB 值 / Enter the sats/vB value: " POPM_STATIC_FEE
+    echo "自动从 popm-address.json 文件中获取 private_key: $POPM_BTC_PRIVKEY"
+    echo "自动从 popm-address.json 文件中获取 sats/vB 值: $POPM_STATIC_FEE"
 
     export POPM_BTC_PRIVKEY=$POPM_BTC_PRIVKEY
     export POPM_STATIC_FEE=$POPM_STATIC_FEE
@@ -136,25 +136,25 @@ view_logs() {
     pm2 logs popmd
 }
 
-# 功能6：更新到 v0.3.8
-update_to_latest() {
-    cd "$HOME/heminetwork"
-    
-    # 停止 pm2 中的 popmd 进程
+# 功能6：更新 Heminetwork 到 v0.3.8
+update_heminetwork() {
+    echo "正在停止 pm2 运行的程序... / Stopping pm2 running processes..."
     pm2 stop popmd
     pm2 delete popmd
-    
-    # 下载并解压缩新的版本
-    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.3.8_linux_amd64.tar.gz
 
-    # 解压文件到目标文件夹
-    tar -xvf heminetwork_v0.3.8_linux_amd64.tar.gz -C "$TARGET_DIR"
+    echo "删除原有的 heminetwork 文件夹... / Removing the existing heminetwork folder..."
+    rm -rf "$HOME/heminetwork"
 
-    # 启动新版本的 popmd
-    pm2 start ./popmd --name popmd
-    pm2 save
+    echo "下载并设置新版 Heminetwork v0.3.8... / Downloading and setting up the new Heminetwork v0.3.8..."
+    download_and_setup
 
-    echo "已更新到 v0.3.8 并重新启动 popmd。/ Updated to v0.3.8 and restarted popmd."
+    echo "设置环境变量... / Setting up environment variables..."
+    setup_environment
+
+    echo "启动 popmd... / Starting popmd..."
+    start_popmd
+
+    echo "更新到 v0.3.8 完成。/ Update to v0.3.8 completed."
 }
 
 # 主菜单
@@ -169,7 +169,7 @@ main_menu() {
         echo "3. 启动 popmd / Start popmd"
         echo "4. 备份地址信息 / Backup address information"
         echo "5. 查看日志 / View logs"
-        echo "6. 更新到 v0.3.8 / Update to v0.3.8"
+        echo "6. 更新到 Heminetwork v0.3.8 / Update to Heminetwork v0.3.8"
         echo "7. 退出 / Exit"
 
         read -p "请输入选项 (1-7): / Enter your choice (1-7): " choice
@@ -191,7 +191,7 @@ main_menu() {
                 view_logs
                 ;;
             6)
-                update_to_latest
+                update_heminetwork
                 ;;
             7)
                 echo "退出脚本。/ Exiting the script."
