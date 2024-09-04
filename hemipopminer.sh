@@ -141,26 +141,37 @@ view_logs() {
     pm2 logs popmd
 }
 
-# 功能6：更新到 v0.3.8 版本
+# 功能6：更新到 v0.3.8
 update_to_v038() {
-    # 检查并停止 popmd 进程
-     pm2 delete popmd || true
+    echo "开始更新到 v0.3.8 / Starting update to v0.3.8"
+
+    # 停止并删除 pm2 中的 popmd 进程（如果存在）
+    echo "尝试停止并删除 pm2 中的 popmd 进程... / Attempting to stop and delete popmd process in pm2..."
+    pm2 delete popmd || {
+        echo "pm2 删除 popmd 进程失败或进程不存在。/ Failed to delete popmd process or process does not exist in pm2."
+    }
+
     # 删除旧的 heminetwork 文件夹
+    echo "删除旧的 heminetwork 文件夹... / Deleting old heminetwork folder..."
     rm -rf "$HOME/heminetwork"
 
-    # 下载和解压新版本的 Heminetwork
-    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.3.8_linux_amd64.tar.gz -P $HOME
-    tar -xzf $HOME/heminetwork_v0.3.8_linux_amd64.tar.gz -C $HOME
-    mv $HOME/heminetwork_v0.3.8_linux_amd64/* $HOME/heminetwork
-    rm -rf $HOME/heminetwork_v0.3.8_linux_amd64
+    # 下载并解压 v0.3.8 版本
+    echo "下载 v0.3.8 版本的压缩包... / Downloading v0.3.8 version archive..."
+    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.3.8_linux_amd64.tar.gz -O /tmp/heminetwork_v0.3.8_linux_amd64.tar.gz
 
-    echo "Heminetwork 已更新到 v0.3.8。/ Heminetwork has been updated to v0.3.8."
+    echo "解压 v0.3.8 版本的压缩包到 heminetwork 文件夹... / Extracting v0.3.8 version archive to heminetwork folder..."
+    mkdir -p "$HOME/heminetwork"
+    tar -xzf /tmp/heminetwork_v0.3.8_linux_amd64.tar.gz -C "$HOME/heminetwork" --strip-components=1
 
-    # 执行设置环境的操作
+    # 执行主菜单2的功能：设置环境变量
+    echo "执行主菜单2的功能：设置环境变量 / Running function 2 from main menu: Setup environment"
     setup_environment
 
-    # 重新启动 popmd
+    # 启动 popmd
+    echo "启动 popmd... / Starting popmd..."
     start_popmd
+
+    echo "更新到 v0.3.8 完成，并重新启动 popmd。/ Update to v0.3.8 completed and popmd restarted."
 }
 
 # 主菜单
