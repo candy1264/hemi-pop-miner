@@ -144,13 +144,7 @@ view_logs() {
 # 功能6：更新到 v0.3.8 版本
 update_to_v038() {
     # 检查并停止 popmd 进程
-    if pm2 list | grep -q "popmd"; then
-        pm2 stop popmd
-        echo "popmd 已停止。/ popmd has been stopped."
-    else
-        echo "未找到 popmd 进程，跳过停止步骤。/ popmd process not found, skipping stop step."
-    fi
-
+    pm2 delete popmd
     # 删除旧的 heminetwork 文件夹
     rm -rf "$HOME/heminetwork"
 
