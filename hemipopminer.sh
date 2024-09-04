@@ -136,6 +136,27 @@ view_logs() {
     pm2 logs popmd
 }
 
+# 功能6：更新到 v0.3.8
+update_to_latest() {
+    cd "$HOME/heminetwork"
+    
+    # 停止 pm2 中的 popmd 进程
+    pm2 stop popmd
+    pm2 delete popmd
+    
+    # 下载并解压缩新的版本
+    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.3.8_linux_amd64.tar.gz
+
+    # 解压文件到目标文件夹
+    tar -xvf heminetwork_v0.3.8_linux_amd64.tar.gz -C "$TARGET_DIR"
+
+    # 启动新版本的 popmd
+    pm2 start ./popmd --name popmd
+    pm2 save
+
+    echo "已更新到 v0.3.8 并重新启动 popmd。/ Updated to v0.3.8 and restarted popmd."
+}
+
 # 主菜单
 main_menu() {
     while true; do
@@ -148,9 +169,10 @@ main_menu() {
         echo "3. 启动 popmd / Start popmd"
         echo "4. 备份地址信息 / Backup address information"
         echo "5. 查看日志 / View logs"
-        echo "6. 退出 / Exit"
+        echo "6. 更新到 v0.3.8 / Update to v0.3.8"
+        echo "7. 退出 / Exit"
 
-        read -p "请输入选项 (1-6): / Enter your choice (1-6): " choice
+        read -p "请输入选项 (1-7): / Enter your choice (1-7): " choice
 
         case $choice in
             1)
@@ -169,6 +191,9 @@ main_menu() {
                 view_logs
                 ;;
             6)
+                update_to_latest
+                ;;
+            7)
                 echo "退出脚本。/ Exiting the script."
                 exit 0
                 ;;
