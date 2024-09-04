@@ -151,9 +151,18 @@ update_heminetwork() {
     echo "下载并解压新版本... / Downloading and extracting the new version..."
     wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.3.8_linux_amd64.tar.gz
 
-    # 解压到目标文件夹并移除子目录结构
+    # 创建目标文件夹
     mkdir -p "$HOME/heminetwork"
-    tar -xvf heminetwork_v0.3.8_linux_amd64.tar.gz -C "$HOME/heminetwork" --strip-components=1
+
+    # 解压到一个临时目录
+    TEMP_DIR=$(mktemp -d)
+    tar -xvf heminetwork_v0.3.8_linux_amd64.tar.gz -C "$TEMP_DIR"
+
+    # 移动解压后的文件到目标目录
+    mv "$TEMP_DIR/heminetwork_v0.3.8_linux_amd64/"* "$HOME/heminetwork/"
+
+    # 删除临时目录
+    rm -rf "$TEMP_DIR"
 
     echo "执行环境设置... / Executing environment setup..."
     setup_environment
@@ -161,6 +170,7 @@ update_heminetwork() {
     echo "重新启动 popmd... / Restarting popmd..."
     start_popmd
 }
+
 
 # 主菜单
 main_menu() {
