@@ -143,19 +143,29 @@ view_logs() {
 
 # 功能6：更新到 v0.3.8 版本
 update_to_v038() {
-    echo "停止 pm2 管理的 popmd / Stopping popmd managed by pm2..."
-    pm2 stop popmd || { echo "无法停止 popmd，请检查 pm2 状态。/ Failed to stop popmd, please check pm2 status."; exit 1; }
-    
-    echo "删除旧的 heminetwork 文件夹 / Removing old heminetwork folder..."
-    rm -rf "$HOME/heminetwork" || { echo "无法删除旧文件夹，请检查权限。/ Failed to remove old directory, please check permissions."; exit 1; }
+    # 检查并停止 popmd 进程
+    if pm2 list | grep -q "popmd"; then
+        pm2 stop popmd
+        echo "popmd 已停止。/ popmd has been stopped."
+    else
+        echo "未找到 popmd 进程，跳过停止步骤。/ popmd process not found, skipping stop step."
+    fi
 
-    echo "下载并安装 v0.3.8 / Downloading and installing v0.3.8..."
-    download_and_setup
-    
-    echo "设置环境变量 / Setting up environment variables..."
+    # 删除旧的 heminetwork 文件夹
+    rm -rf "$HOME/heminetwork"
+
+    # 下载和解压新版本的 Heminetwork
+    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.3.8_linux_amd64.tar.gz -P $HOME
+    tar -xzf $HOME/heminetwork_v0.3.8_linux_amd64.tar.gz -C $HOME
+    mv $HOME/heminetwork_v0.3.8_linux_amd64/* $HOME/heminetwork
+    rm -rf $HOME/heminetwork_v0.3.8_linux_amd64
+
+    echo "Heminetwork 已更新到 v0.3.8。/ Heminetwork has been updated to v0.3.8."
+
+    # 执行设置环境的操作
     setup_environment
 
-    echo "重新启动 popmd / Restarting popmd..."
+    # 重新启动 popmd
     start_popmd
 }
 
