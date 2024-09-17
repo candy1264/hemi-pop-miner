@@ -98,8 +98,8 @@ download_and_setup() {
     tar -xvf heminetwork_v0.4.3_linux_amd64.tar.gz -C "$TARGET_DIR"
 
     # 移动文件到 heminetwork 目录
-    mv "$TARGET_DIR/heminetwork_v0.3.8_linux_amd64/"* "$TARGET_DIR/"
-    rmdir "$TARGET_DIR/heminetwork_v0.3.8_linux_amd64"
+    mv "$TARGET_DIR/heminetwork_v0.4.3_linux_amd64/"* "$TARGET_DIR/"
+    rmdir "$TARGET_DIR/heminetwork_v0.4.3_linux_amd64"
 
     # 切换到目标文件夹
     cd "$TARGET_DIR"
@@ -141,9 +141,9 @@ view_logs() {
     pm2 logs popmd
 }
 
-# 功能6：更新到 v0.3.8
+# 功能6：更新到 v0.4.3
 update_to_v038() {
-    echo "开始更新到 v0.3.8 / Starting update to v0.3.8"
+    echo "开始更新到 v0.4.3 / Starting update to v0.4.3"
 
     # 停止并删除 pm2 中的 popmd 进程（如果存在）
     echo "尝试停止并删除 pm2 中的 popmd 进程... / Attempting to stop and delete popmd process in pm2..."
@@ -156,10 +156,10 @@ update_to_v038() {
     rm -rf "$HOME/heminetwork"
 
     # 下载并解压 v0.4.3 版本
-    echo "下载 v0.4.3 版本的压缩包... / Downloading v0.3.8 version archive..."
-    wget https://github.com/hemilabs/heminetwork/releases/download/v0.3.8/heminetwork_v0.4.3_linux_amd64.tar.gz -O /tmp/heminetwork_v0.4.3_linux_amd64.tar.gz
+    echo "下载 v0.4.3 版本的压缩包... / Downloading v0.4.3 version archive..."
+    wget https://github.com/hemilabs/heminetwork/releases/download/v0.4.3/heminetwork_v0.4.3_linux_amd64.tar.gz -O /tmp/heminetwork_v0.4.3_linux_amd64.tar.gz
 
-    echo "解压 v0.3.8 版本的压缩包到 heminetwork 文件夹... / Extracting v0.3.8 version archive to heminetwork folder..."
+    echo "解压 v0.4.3 版本的压缩包到 heminetwork 文件夹... / Extracting v0.4.3 version archive to heminetwork folder..."
     mkdir -p "$HOME/heminetwork"
     tar -xzf /tmp/heminetwork_v0.4.3_linux_amd64.tar.gz -C "$HOME/heminetwork" --strip-components=1
 
@@ -171,7 +171,7 @@ update_to_v038() {
     echo "启动 popmd... / Starting popmd..."
     start_popmd
 
-    echo "更新到 v0.3.8 完成，并重新启动 popmd。/ Update to v0.3.8 completed and popmd restarted."
+    echo "更新到 v0.4.3 完成，并重新启动 popmd。/ Update to v0.4.3 completed and popmd restarted."
 }
 
 # 主菜单
@@ -186,7 +186,7 @@ main_menu() {
         echo "3. 启动 popmd / Start popmd"
         echo "4. 备份地址信息 / Backup address information"
         echo "5. 查看日志 / View logs"
-        echo "6. 更新到 v0.3.8 / Update to v0.3.8"
+        echo "6. 更新到 v0.4.3 / Update to v0.4.3"
         echo "7. 退出 / Exit"
 
         read -p "请输入选项 (1-7): / Enter your choice (1-7): " choice
