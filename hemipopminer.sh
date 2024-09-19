@@ -102,7 +102,7 @@ download_and_setup() {
     rmdir "$TARGET_DIR/heminetwork_v0.4.3_linux_amd64"
 
     # 切换到目标文件夹
-    cd "$TARGET_DIR"
+    cd $HOME/heminetwork
     ./popmd --help
     ./keygen -secp256k1 -json -net="testnet" > ~/popm-address.json
 }
