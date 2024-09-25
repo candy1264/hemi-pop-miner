@@ -103,7 +103,6 @@ download_and_setup() {
 
     # 切换到目标文件夹
     cd $HOME/heminetwork
-    ./popmd --help
     ./keygen -secp256k1 -json -net="testnet" > ~/popm-address.json
 }
 
