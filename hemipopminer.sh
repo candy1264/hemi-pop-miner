@@ -88,18 +88,18 @@ install_pm2() {
 
 # 功能1：下载、解压缩并运行帮助命令
 download_and_setup() {
-    wget https://github.com/hemilabs/heminetwork/releases/download/v0.8.0/heminetwork_v0.8.0_linux_amd64.tar.gz -O heminetwork_v0.8.0_linux_amd64.tar.gz
+    wget https://github.com/hemilabs/heminetwork/releases/download/v0.11.5/heminetwork_v0.11.5_linux_amd64.tar.gz -O heminetwork_v0.11.5_linux_amd64.tar.gz
 
     # 创建目标文件夹 (如果不存在)
     TARGET_DIR="$HOME/heminetwork"
     mkdir -p "$TARGET_DIR"
 
     # 解压文件到目标文件夹
-    tar -xvf heminetwork_v0.8.0_linux_amd64.tar.gz -C "$TARGET_DIR"
+    tar -xvf heminetwork_v0.11.5_linux_amd64.tar.gz -C "$TARGET_DIR"
 
     # 移动文件到 heminetwork 目录
-    mv "$TARGET_DIR/heminetwork_v0.8.0_linux_amd64/"* "$TARGET_DIR/"
-    rmdir "$TARGET_DIR/heminetwork_v0.8.0_linux_amd64"
+    mv "$TARGET_DIR/heminetwork_v0.11.5_linux_amd64/"* "$TARGET_DIR/"
+    rmdir "$TARGET_DIR/heminetwork_v0.11.5_linux_amd64"
 
     # 切换到目标文件夹
     cd $HOME/heminetwork
@@ -142,9 +142,9 @@ view_logs() {
     pm2 logs popmd
 }
 
-# 功能6：更新到 v0.8.0
+# 功能6：更新到 v0.11.5
 update_to_v038() {
-    echo "开始更新到 v0.8.0 / Starting update to v0.8.0"
+    echo "开始更新到 v0.11.5 / Starting update to v0.11.5"
 
     # 停止并删除 pm2 中的 popmd 进程（如果存在）
     echo "尝试停止并删除 pm2 中的 popmd 进程... / Attempting to stop and delete popmd process in pm2..."
@@ -156,13 +156,13 @@ update_to_v038() {
     echo "删除旧的 heminetwork 文件夹... / Deleting old heminetwork folder..."
     rm -rf "$HOME/heminetwork"
 
-    # 下载并解压 v0.8.0 版本
-    echo "下载 v0.8.0 版本的压缩包... / Downloading v0.8.0 version archive..."
-    wget https://github.com/hemilabs/heminetwork/releases/download/v0.8.0/heminetwork_v0.8.0_linux_amd64.tar.gz -O /tmp/heminetwork_v0.8.0_linux_amd64.tar.gz
+    # 下载并解压 v0.11.5 版本
+    echo "下载 v0.11.5 版本的压缩包... / Downloading v0.11.5 version archive..."
+    wget https://github.com/hemilabs/heminetwork/releases/download/v0.11.5/heminetwork_v0.11.5_linux_amd64.tar.gz -O /tmp/heminetwork_v0.11.5_linux_amd64.tar.gz
 
-    echo "解压 v0.8.0 版本的压缩包到 heminetwork 文件夹... / Extracting v0.8.0 version archive to heminetwork folder..."
+    echo "解压 v0.11.5 版本的压缩包到 heminetwork 文件夹... / Extracting v0.11.5 version archive to heminetwork folder..."
     mkdir -p "$HOME/heminetwork"
-    tar -xzf /tmp/heminetwork_v0.8.0_linux_amd64.tar.gz -C "$HOME/heminetwork" --strip-components=1
+    tar -xzf /tmp/heminetwork_v0.11.5_linux_amd64.tar.gz -C "$HOME/heminetwork" --strip-components=1
 
     # 执行主菜单2的功能：设置环境变量
     echo "执行主菜单2的功能：设置环境变量 / Running function 2 from main menu: Setup environment"
@@ -172,7 +172,7 @@ update_to_v038() {
     echo "启动 popmd... / Starting popmd..."
     start_popmd
 
-    echo "更新到 v0.8.0 完成，并重新启动 popmd。/ Update to v0.8.0 completed and popmd restarted."
+    echo "更新到 v0.11.5 完成，并重新启动 popmd。/ Update to v0.11.5 completed and popmd restarted."
 }
 
 # 主菜单
@@ -187,7 +187,7 @@ main_menu() {
         echo "3. 启动 popmd / Start popmd"
         echo "4. 备份地址信息 / Backup address information"
         echo "5. 查看日志 / View logs"
-        echo "6. 更新到 v0.8.0 / Update to v0.8.0"
+        echo "6. 更新到 v0.11.5 / Update to v0.11.5"
         echo "7. 退出 / Exit"
 
         read -p "请输入选项 (1-7): / Enter your choice (1-7): " choice
